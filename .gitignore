@@ -1,7 +1,0 @@
-node_modules/
-.next/
-package-lock.json
-npm-debug.log
-dist/
-/.DS_Store
-data/PowerPC.json
