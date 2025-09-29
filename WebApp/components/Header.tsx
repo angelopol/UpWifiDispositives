@@ -1,5 +1,19 @@
+import { useRouter } from 'next/router'
+
 export default function Header(){
   const version = process.env.NEXT_PUBLIC_VERSION || 'v0.1'
+  const router = useRouter()
+
+  async function handleLogout() {
+    try {
+      await fetch('/api/logout', { method: 'POST' })
+    } catch (e) {
+      // ignore
+    }
+    // redirect to login
+    router.push('/login')
+  }
+
   return (
     <header className="w-full mb-8 flex items-center justify-between">
       <div className="flex items-center gap-3">
@@ -9,8 +23,9 @@ export default function Header(){
           <div className="text-xs text-gray-500">Controla dispositivos conectados por WiFi</div>
         </div>
       </div>
-      <nav className="text-sm text-gray-600">
-        {version}
+      <nav className="text-sm text-gray-600 flex items-center gap-4">
+        <span>{version}</span>
+        <button onClick={handleLogout} className="text-sm text-red-600 hover:underline">Cerrar sesión</button>
       </nav>
     </header>
   )

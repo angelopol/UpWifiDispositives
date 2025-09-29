@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/router'
 import Header from '../components/Header'
+import { verifyToken } from '../lib/auth'
+import { GetServerSideProps } from 'next'
 
 export default function Home() {
+  const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<string>('')
 
@@ -10,6 +14,13 @@ export default function Home() {
     setMessage('')
     try {
       const res = await fetch('/api/setPowerTrue', { method: 'POST' })
+      if (res.status === 401) {
+        // session expired or unauthenticated
+        setMessage('Sesión expirada. Redirigiendo a login...')
+        setLoading(false)
+        setTimeout(() => router.push('/login'), 1400)
+        return
+      }
       if (!res.ok) throw new Error('Failed to set Power to true')
       setMessage('Comando enviado: PowerPC = true')
       // leave feedback in `message`
@@ -26,6 +37,7 @@ export default function Home() {
   // On mount, check /PowerPC; if it returns 200 => show alert "accionando..." (endpoint will toggle to false)
   // Poll remote PowerPC status continuously (reads only, does not mutate)
   const [powerStatus, setPowerStatus] = useState<boolean>(false)
+  // (authentication check moved to server-side getServerSideProps)
   useEffect(() => {
     let mounted = true
     let timer: NodeJS.Timeout | number
@@ -85,4 +97,18 @@ export default function Home() {
   {/* toast removed; inline feedback is shown via `message` above */}
     </div>
   )
+}
+
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const cookie = ctx.req.headers.cookie || ''
+  const match = cookie.split(';').map(s => s.trim()).find(s => s.startsWith('upw_token='))
+  const token = match ? match.split('=')[1] : null
+  if (!token) {
+    return { redirect: { destination: '/login', permanent: false } }
+  }
+  const data = verifyToken(token)
+  if (!data) {
+    return { redirect: { destination: '/login', permanent: false } }
+  }
+  return { props: {} }
 }

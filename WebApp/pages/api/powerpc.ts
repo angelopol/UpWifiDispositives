@@ -1,13 +1,18 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import fs from 'fs'
+import fs from 'fs/promises'
 import path from 'path'
 
 const dataPath = path.join(process.cwd(), 'data', 'PowerPC.json')
 
-function readValue(): boolean {
+async function readValue(): Promise<boolean> {
   try {
-    if (!fs.existsSync(dataPath)) return false
-    const raw = fs.readFileSync(dataPath, 'utf8')
+    // check existence
+    try {
+      await fs.access(dataPath)
+    } catch (e) {
+      return false
+    }
+    const raw = await fs.readFile(dataPath, 'utf8')
     const obj = JSON.parse(raw)
     return !!obj.value
   } catch (err) {
@@ -16,9 +21,9 @@ function readValue(): boolean {
   }
 }
 
-function writeValue(val: boolean): boolean {
+async function writeValue(val: boolean): Promise<boolean> {
   try {
-    fs.writeFileSync(dataPath, JSON.stringify({ value: !!val }, null, 2), 'utf8')
+    await fs.writeFile(dataPath, JSON.stringify({ value: !!val }, null, 2), 'utf8')
     return true
   } catch (err) {
     console.error('write error', err)
@@ -26,12 +31,12 @@ function writeValue(val: boolean): boolean {
   }
 }
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') return res.status(405).end()
 
-  const val = readValue()
+  const val = await readValue()
   if (val === true) {
-    writeValue(false)
+    await writeValue(false)
     return res.status(200).json({ status: 'ok' })
   }
 

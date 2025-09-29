@@ -1,8 +1,8 @@
-import fs from 'fs'
+import fs from 'fs/promises'
 import path from 'path'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
     res.setHeader('Allow', 'GET')
     return res.status(405).json({ error: 'Method not allowed' })
@@ -10,11 +10,13 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
   try {
     const filePath = path.join(process.cwd(), 'data', 'PowerPC.json')
-    if (!fs.existsSync(filePath)) {
+    try {
+      await fs.access(filePath)
+    } catch (e) {
       return res.status(404).json({ error: 'State file not found' })
     }
 
-    const raw = fs.readFileSync(filePath, 'utf8')
+    const raw = await fs.readFile(filePath, 'utf8')
     const json = JSON.parse(raw || '{}')
 
     // Return the current value without changing the file
