@@ -1,0 +1,63 @@
+{
+  "name": "PowerESP Control",
+  "short_name": "PowerESP",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0ea5a4",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "splash_screens": [
+    {
+      "src": "/splash-640x1136.png",
+      "sizes": "640x1136"
+    },
+    {
+      "src": "/splash-750x1334.png",
+      "sizes": "750x1334"
+    },
+    {
+      "src": "/splash-1125x2436.png",
+      "sizes": "1125x2436"
+    },
+    {
+      "src": "/splash-1242x2208.png",
+      "sizes": "1242x2208"
+    },
+    {
+      "src": "/splash-1536x2048.png",
+      "sizes": "1536x2048"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/screenshot-portrait.png",
+      "sizes": "720x1280",
+      "type": "image/png"
+    }
+  ]
+}

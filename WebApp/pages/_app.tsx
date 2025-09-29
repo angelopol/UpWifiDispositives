@@ -1,4 +1,5 @@
 import '../styles/globals.css'
+import Head from 'next/head'
 import type { AppProps } from 'next/app'
 import { useEffect, useRef } from 'react'
 import Footer from '../components/Footer'
@@ -47,6 +48,11 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <>
+      <Head>
+        <link rel="icon" href="/favicon.svg" />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#0ea5a4" />
+      </Head>
       <Component {...pageProps} />
       <Footer />
     </>
