@@ -1,6 +1,7 @@
 import '../styles/globals.css'
 import type { AppProps } from 'next/app'
 import { useEffect, useRef } from 'react'
+import Footer from '../components/Footer'
 
 export default function App({ Component, pageProps }: AppProps) {
   const didRefreshRef = useRef(false)
@@ -44,5 +45,10 @@ export default function App({ Component, pageProps }: AppProps) {
     return () => { clearInterval(id) }
   }, [])
 
-  return <Component {...pageProps} />
+  return (
+    <>
+      <Component {...pageProps} />
+      <Footer />
+    </>
+  )
 }

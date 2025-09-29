@@ -46,7 +46,6 @@ export default function Header(){
         </div>
       </div>
       <nav className="text-sm text-gray-600 flex items-center gap-4">
-        <span>{version}</span>
         {authed && <button onClick={handleLogout} className="text-sm text-red-600 hover:underline">Cerrar sesión</button>}
       </nav>
     </header>

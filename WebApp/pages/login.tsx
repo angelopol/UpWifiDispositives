@@ -37,9 +37,9 @@ export default function LoginPage() {
       <div className="app-container w-full">
         <Header />
 
-        <div className="flex-1 flex items-center justify-center px-4 py-0">
-          <div className="w-full max-w-md">
-            <div className="card">
+        <div className="flex-1 flex items-center justify-center py-0">
+          <div className="w-full">
+            <div className="card w-full">
               <h3 className="text-2xl font-semibold mb-4">Acceso</h3>
               <p className="text-sm text-gray-500 mb-6">Introduce tus credenciales para acceder al panel de control</p>
 

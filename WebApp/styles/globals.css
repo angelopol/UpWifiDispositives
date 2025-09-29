@@ -19,7 +19,8 @@ body {
 }
 
 .app-container{
-  @apply max-w-3xl mx-auto px-6 py-12;
+  /* add extra bottom padding so content isn't hidden behind sticky footer */
+  @apply max-w-3xl mx-auto px-6 py-12 pb-14;
 }
 
 .card {

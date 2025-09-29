@@ -71,7 +71,6 @@ export default function Home() {
               <h2 className="text-2xl font-semibold">Control PowerPC</h2>
               <p className="text-sm text-gray-500 mt-1">Prende dispositivos conectados a la red WiFi</p>
             </div>
-            <div className="text-sm text-gray-400">Estado local</div>
           </div>
 
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
