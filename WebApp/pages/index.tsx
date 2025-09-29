@@ -61,7 +61,7 @@ export default function Home() {
   }, [])
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-start p-8 bg-gradient-to-b from-gray-50 to-gray-100">
+    <div className="min-h-screen flex flex-col items-center justify-start bg-gradient-to-b from-gray-50 to-gray-100">
       <div className="app-container w-full">
         <Header />
 

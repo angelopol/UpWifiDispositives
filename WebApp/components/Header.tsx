@@ -1,18 +1,40 @@
 import { useRouter } from 'next/router'
+import { useEffect, useState } from 'react'
 
 export default function Header(){
   const version = process.env.NEXT_PUBLIC_VERSION || 'v0.1'
   const router = useRouter()
+  const [authed, setAuthed] = useState<boolean | null>(null)
 
   async function handleLogout() {
     try {
-      await fetch('/api/logout', { method: 'POST' })
+      await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' })
     } catch (e) {
       // ignore
     }
     // redirect to login
     router.push('/login')
   }
+
+  useEffect(() => {
+    let mounted = true
+    async function check() {
+      try {
+        const res = await fetch('/api/me', { method: 'GET', credentials: 'same-origin' })
+        if (!mounted) return
+        if (res.ok) {
+          const json = await res.json()
+          setAuthed(Boolean(json?.authenticated))
+        } else {
+          setAuthed(false)
+        }
+      } catch (e) {
+        if (mounted) setAuthed(false)
+      }
+    }
+    check()
+    return () => { mounted = false }
+  }, [])
 
   return (
     <header className="w-full mb-8 flex items-center justify-between">
@@ -25,7 +47,7 @@ export default function Header(){
       </div>
       <nav className="text-sm text-gray-600 flex items-center gap-4">
         <span>{version}</span>
-        <button onClick={handleLogout} className="text-sm text-red-600 hover:underline">Cerrar sesión</button>
+        {authed && <button onClick={handleLogout} className="text-sm text-red-600 hover:underline">Cerrar sesión</button>}
       </nav>
     </header>
   )
