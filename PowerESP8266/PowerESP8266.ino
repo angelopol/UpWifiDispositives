@@ -3,13 +3,15 @@
 #include <WiFiClient.h>
 
 // --- CONFIGURACIÓN WIFI ---
-const char* ssid = "EL_NOMBRE_DE_TU_WIFI";       // Reemplaza con el nombre de tu red
-const char* password = "TU_CONTRASENA_WIFI"; // Reemplaza con tu contraseña
+const char* ssid = "xxx";       // Reemplaza con el nombre de tu red
+const char* password = "xxx"; // Reemplaza con tu contraseña
 // URL del endpoint a consultar
-const String serverPath = "http://192.76.9.1:8000/power-pc";
+const String serverPath = "xxx";
 
 // --- CONFIGURACIÓN DEL PIN ---
-const int pulsoPin = D3; // Pin D3 (que corresponde a GPIO0 en el ESP8266)
+// Se usa el número de GPIO directamente para evitar errores de compilación.
+// D3 en la placa NodeMCU corresponde a GPIO0.
+const int pulsoPin = 16; 
 
 void setup() {
   // Inicializa la comunicación serial para ver mensajes en el monitor
@@ -45,26 +47,20 @@ void loop() {
       // Realiza la petición GET
       int httpCode = http.GET();
 
-      // Si la petición fue exitosa (código 200)
+      // --- LÓGICA MODIFICADA ---
+      // Si la petición fue exitosa (código 200), envía el pulso.
+      // Ya no se revisa el contenido de la respuesta.
       if (httpCode == HTTP_CODE_OK) {
-        String payload = http.getString(); // Obtiene la respuesta del servidor
-        Serial.print("[HTTP] Respuesta recibida: ");
-        Serial.println(payload);
-
-        // Comprueba si la respuesta es "true"
-        if (payload.equalsIgnoreCase("true")) {
-          Serial.println("Respuesta es 'true'. Enviando pulso HIGH al pin D3.");
-          
-          // --- ENVÍO DEL PULSO ---
-          digitalWrite(pulsoPin, HIGH); // Pone el pin en alto
-          delay(1000);                  // Mantiene el pulso por 1 segundo (1000 ms)
-          digitalWrite(pulsoPin, LOW);  // Vuelve a poner el pin en bajo
-          
-        } else {
-          Serial.println("La respuesta no fue 'true'. No se envía pulso.");
-        }
+        Serial.println("Respuesta OK (código 200). Enviando pulso HIGH.");
+        
+        // --- ENVÍO DEL PULSO ---
+        digitalWrite(pulsoPin, HIGH); // Pone el pin en alto
+        delay(5000);                  // Mantiene el pulso por 1 segundo (1000 ms)
+        digitalWrite(pulsoPin, LOW);  // Vuelve a poner el pin en bajo
+        
       } else {
-        Serial.printf("[HTTP] Error en la petición GET, código: %d\n", httpCode);
+        // Si hay un error, muestra el código por el Monitor Serie.
+        Serial.printf("[HTTP] Petición fallida, código: %d\n", httpCode);
       }
       // Libera los recursos
       http.end();
