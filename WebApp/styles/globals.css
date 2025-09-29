@@ -2,10 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+
+:root{
+  --brand: #0ea5a4; /* teal-500 */
+  --brand-dark: #115e59;
+}
+
 html, body, #__next {
   height: 100%;
 }
 
 body {
-  @apply bg-gray-50 text-gray-800;
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  @apply bg-gradient-to-b from-gray-50 to-gray-100 text-gray-800 antialiased;
 }
+
+.app-container{
+  @apply max-w-3xl mx-auto px-6 py-12;
+}
+
+.card {
+  @apply bg-white shadow-lg rounded-2xl p-8 border border-gray-100;
+}
+
+.btn-primary{
+  background: linear-gradient(90deg,var(--brand),var(--brand-dark));
+  color: white;
+}
+
+.toast-enter{animation: toast-in 240ms ease-out forwards}
+.toast-leave{animation: toast-out 240ms ease-in forwards}
+@keyframes toast-in{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes toast-out{from{opacity:1}to{opacity:0;transform:translateY(6px) scale(.98)}}
+

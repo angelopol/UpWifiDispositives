@@ -1,12 +1,8 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 #include <WiFiClient.h>
-
-// --- CONFIGURACIÓN WIFI ---
-const char* ssid = "xxx";       // Reemplaza con el nombre de tu red
-const char* password = "xxx"; // Reemplaza con tu contraseña
-// URL del endpoint a consultar
-const String serverPath = "xxx";
+#include "WifiCredentials.h" // Archivo separado para las credenciales WiFi
+#include "endpoint.h"       // Archivo separado para la URL del endpoint
 
 // --- CONFIGURACIÓN DEL PIN ---
 // Se usa el número de GPIO directamente para evitar errores de compilación.
@@ -55,7 +51,7 @@ void loop() {
         
         // --- ENVÍO DEL PULSO ---
         digitalWrite(pulsoPin, HIGH); // Pone el pin en alto
-        delay(5000);                  // Mantiene el pulso por 1 segundo (1000 ms)
+        delay(3000);                  // Mantiene el pulso por 1 segundo (1000 ms)
         digitalWrite(pulsoPin, LOW);  // Vuelve a poner el pin en bajo
         
       } else {

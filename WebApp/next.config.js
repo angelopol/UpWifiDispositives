@@ -6,6 +6,10 @@ module.exports = {
         source: '/PowerPC',
         destination: '/api/powerpc'
       }
+      ,{
+        source: '/PowerPCStatus',
+        destination: '/api/PowerPCStatus'
+      }
     ]
   }
 }
