@@ -17,13 +17,15 @@ export default function LoginPage() {
       return
     }
     try {
-      const res = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user, password }) })
+      const res = await fetch('/api/login', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user, password }) })
       if (!res.ok) {
         const json = await res.json().catch(() => ({}))
         throw new Error(json?.error || 'Login failed')
       }
-      // cookie set by server; redirect
-      router.push('/')
+      // ensure cookie is set and server recognizes session before redirecting
+      const me = await fetch('/api/me', { method: 'GET', credentials: 'same-origin' })
+      if (!me.ok) throw new Error('No session after login')
+      router.replace('/')
     } catch (err: any) {
       setError(err?.message ?? String(err))
     }

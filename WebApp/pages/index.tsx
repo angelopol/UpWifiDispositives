@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Header from '../components/Header'
-import { verifyToken } from '../lib/auth'
 import { GetServerSideProps } from 'next'
 
 export default function Home() {
@@ -100,6 +99,7 @@ export default function Home() {
 }
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const { verifyToken } = await import('../lib/auth')
   const cookie = ctx.req.headers.cookie || ''
   const match = cookie.split(';').map(s => s.trim()).find(s => s.startsWith('upw_token='))
   const token = match ? match.split('=')[1] : null
