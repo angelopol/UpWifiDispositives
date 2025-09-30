@@ -1,6 +1,7 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 #include <WiFiClient.h>
+#include <WiFiClientSecure.h>
 #include "WifiCredentials.h" // Archivo separado para las credenciales WiFi
 #include "endpoint.h"       // Archivo separado para la URL del endpoint
 
@@ -138,6 +139,13 @@ void loop() {
         break;
       }
 
+      // If not OK, perform a raw TLS fetch and print full response headers/body for debugging
+      if (httpCode != HTTP_CODE_OK) {
+        Serial.println("[HTTP] Ejecutando fetch raw para obtener cabeceras completas...");
+        // print raw headers using a simple TLS client (ignores cert validation)
+        printRawHeaders(url);
+      }
+
       // Si es redirección (301/302/307/308) y hay Location -> seguir
       if ((httpCode == 301 || httpCode == 302 || httpCode == 307 || httpCode == 308) && loc.length() > 0) {
         Serial.println("[HTTP] Redirección detectada, preparando a seguir Location...");
@@ -177,4 +185,68 @@ void loop() {
 
   // Espera 10 segundos antes de volver a consultar el endpoint
   delay(10000);
+}
+
+// Helper: realiza una petición TLS/HTTP mínima y vuelca la respuesta cruda a Serial
+void printRawHeaders(const String &url) {
+  WiFiClientSecure secure;
+  secure.setInsecure(); // no validar certificado (solo para debug)
+
+  // Parse URL simple (scheme://host[:port]/path)
+  String tmp = url;
+  int schemePos = tmp.indexOf("://");
+  String host = tmp;
+  String path = "/";
+  int port = 443;
+  if (schemePos >= 0) {
+    host = tmp.substring(schemePos + 3);
+  }
+  int slashPos = host.indexOf('/');
+  if (slashPos >= 0) {
+    path = host.substring(slashPos);
+    host = host.substring(0, slashPos);
+  }
+  int colonPos = host.indexOf(':');
+  if (colonPos >= 0) {
+    port = host.substring(colonPos + 1).toInt();
+    host = host.substring(0, colonPos);
+  }
+
+  Serial.print("[RAW] Conectando a "); Serial.print(host); Serial.print(":"); Serial.println(port);
+  if (!secure.connect(host, port)) {
+    Serial.println("[RAW] fallo al conectar") ;
+    return;
+  }
+
+  // Send minimal GET
+  secure.print(String("GET ") + path + " HTTP/1.1\r\n");
+  secure.print(String("Host: ") + host + "\r\n");
+  secure.print("User-Agent: ESP8266-UpWifi/1.0\r\n");
+  secure.print("Connection: close\r\n");
+  secure.print("\r\n");
+
+  // Read status line and headers
+  unsigned long start = millis();
+  while (secure.connected() && (millis() - start) < 5000) {
+    while (secure.available()) {
+      String line = secure.readStringUntil('\n');
+      line.trim();
+      if (line.length() == 0) {
+        Serial.println("[RAW] -- end headers --");
+        // read up to ~2KB of body for inspection
+        int toRead = 2048;
+        while (secure.available() && toRead > 0) {
+          String chunk = secure.readStringUntil('\n');
+          Serial.println(chunk);
+          toRead -= chunk.length();
+        }
+        secure.stop();
+        return;
+      }
+      Serial.println(line);
+    }
+    delay(10);
+  }
+  Serial.println("[RAW] timeout leyendo respuesta");
+  secure.stop();
 }

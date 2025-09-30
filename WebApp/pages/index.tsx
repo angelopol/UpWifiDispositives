@@ -54,9 +54,9 @@ export default function Home() {
       }
     }
 
-    // initial poll and then interval
-    pollStatus()
-    timer = setInterval(pollStatus, 1500)
+  // initial poll and then interval (5 seconds to reduce requests)
+  pollStatus()
+  timer = setInterval(pollStatus, 5000)
     return () => { mounted = false; clearInterval(timer as any) }
   }, [])
 
