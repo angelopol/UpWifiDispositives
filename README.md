@@ -28,9 +28,9 @@ npm run dev
 2. Abre `http://localhost:3000`.
 
 Endpoints principales:
-- POST `/api/setPowerTrue` — protegido; escribe `{ value: true }` en `data/PowerPC.json`.
-- GET `/PowerPC` — devuelve 200 y cambia a false si el JSON tenía `value: true`; devuelve 401 si no.
-- GET `/api/PowerPCStatus` — estado de lectura del JSON.
+- POST `/api/setPowerTrue` — protegido; establece el estado a true en la base de datos.
+- GET `/PowerPC` — rewrites a `/api/powerpc`, devuelve 200 y cambia a false si el estado en la base de datos era true; devuelve 401 si no.
+- GET `/api/PowerPCStatus` — devuelve el estado actual (leído desde la base de datos cuando esté disponible; cae a un valor en memoria si no hay DB configurada).
 
 La app utiliza un sistema de autenticación JWT con cookie `upw_token`. Las credenciales y secretos están en `.env` (no subir al repo).
 

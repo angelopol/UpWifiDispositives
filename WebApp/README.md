@@ -1,6 +1,6 @@
 # WebApp PowerPC
 
-Pequeña Next.js app para controlar un JSON llamado `PowerPC.json`.
+Pequeña Next.js app para controlar el estado de encendido de un dispositivo (almacenado en la base de datos SQL).
 
 Scripts:
 
@@ -11,8 +11,12 @@ Scripts:
 
 Endpoints:
 
-- POST /api/setPowerTrue -> escribe `{ value: true }` en `data/PowerPC.json`
+Endpoints:
+
+- POST /api/setPowerTrue -> establece el estado a true (protegido, requiere cookie JWT)
 - GET /PowerPC -> rewrites a `/api/powerpc`, devuelve 200 si el value es true (y lo cambia a false), o 401 en caso contrario
+
+Storage: the app uses a MySQL database (see `DB_HOST`, `DB_USER`, `DB_NAME` env vars). If no DB is configured the app falls back to an in-memory value for the running process only.
 
 Vercel deployment
 -----------------
