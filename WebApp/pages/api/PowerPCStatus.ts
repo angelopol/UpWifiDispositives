@@ -13,7 +13,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
       await fs.access(filePath)
     } catch (e) {
-      return res.status(404).json({ error: 'State file not found' })
+      // File is missing — treat as "false" (safe default) instead of returning 404.
+      // In serverless hosts (Vercel) the filesystem may not be writable/persistent;
+      // returning false is a safer, idempotent response for clients.
+      console.warn('PowerPCStatus: state file not found, returning default false')
+      return res.status(200).json({ value: false })
     }
 
     const raw = await fs.readFile(filePath, 'utf8')
