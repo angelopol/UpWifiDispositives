@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "WebApp/package.json", "use": "@vercel/next" }
+  ],
+  "routes": [
+    { "src": "^/(.*)$", "dest": "/WebApp/$1" }
+  ]
+}
