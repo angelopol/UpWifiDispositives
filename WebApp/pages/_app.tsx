@@ -49,6 +49,8 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
+        <title>PowerESP Control</title>
+        <meta name="description" content="Controla dispositivos PowerESP conectados a la red WiFi" />
         <link rel="icon" href="/favicon.svg" />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#0ea5a4" />
