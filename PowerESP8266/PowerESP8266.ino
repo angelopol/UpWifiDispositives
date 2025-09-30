@@ -67,7 +67,7 @@ void setup() {
 
   // Configura el pin de salida
   pinMode(pulsoPin, OUTPUT);
-  digitalWrite(pulsoPin, LOW); // Asegúrate de que el pin inicie en bajo (LOW)
+  digitalWrite(pulsoPin, HIGH); // Asegúrate de que el pin inicie en ALOT (HIGH)
 
   // --- CONEXIÓN A WIFI ---
   WiFi.begin(ssid, password);
@@ -130,9 +130,9 @@ void loop() {
 
         // --- ENVÍO DEL PULSO ---
         Serial.println("Respuesta OK (código 200). Enviando pulso HIGH.");
-        digitalWrite(pulsoPin, HIGH); // Pone el pin en alto
-        delay(3000);                  // Mantiene el pulso por 3000 ms
-        digitalWrite(pulsoPin, LOW);  // Vuelve a poner el pin en bajo
+        digitalWrite(pulsoPin, LOW); // Pone el pin en BAJO
+        delay(1000);                  // Mantiene el pulso por 3000 ms
+        digitalWrite(pulsoPin, HIGH);  // Vuelve a poner el pin en ALTO
 
         success = true;
         http.end();
@@ -143,7 +143,29 @@ void loop() {
       if (httpCode != HTTP_CODE_OK) {
         Serial.println("[HTTP] Ejecutando fetch raw para obtener cabeceras completas...");
         // print raw headers using a simple TLS client (ignores cert validation)
-        printRawHeaders(url);
+        String rawLoc = printRawHeaders(url);
+        Serial.print("[DEBUG] rawLoc returned: '"); Serial.print(rawLoc); Serial.println("'");
+        // If raw fetch indicates 200 OK, perform the pulse (we printed body already)
+        if (rawLoc == "__RAW_200__") {
+          Serial.println("[RAW->OK] Se detectó 200 OK en raw fetch. Enviando pulso HIGH.");
+          digitalWrite(pulsoPin, LOW);
+          delay(1000);
+          digitalWrite(pulsoPin, HIGH);
+          success = true;
+          http.end();
+          break;
+        }
+        if (rawLoc.length() > 0) {
+          Serial.print("[HTTP] Ubicacion obtenida via raw fetch: ");
+          Serial.println(rawLoc);
+          // construir URL absoluta y seguirla
+          String nextUrl = buildAbsoluteURL(url, rawLoc);
+          Serial.print("[HTTP] Siguiendo a (raw): "); Serial.println(nextUrl);
+          http.end();
+          url = nextUrl;
+          delay(200);
+          continue;
+        }
       }
 
       // Si es redirección (301/302/307/308) y hay Location -> seguir
@@ -188,7 +210,7 @@ void loop() {
 }
 
 // Helper: realiza una petición TLS/HTTP mínima y vuelca la respuesta cruda a Serial
-void printRawHeaders(const String &url) {
+String printRawHeaders(const String &url) {
   WiFiClientSecure secure;
   secure.setInsecure(); // no validar certificado (solo para debug)
 
@@ -215,7 +237,7 @@ void printRawHeaders(const String &url) {
   Serial.print("[RAW] Conectando a "); Serial.print(host); Serial.print(":"); Serial.println(port);
   if (!secure.connect(host, port)) {
     Serial.println("[RAW] fallo al conectar") ;
-    return;
+    return String();
   }
 
   // Send minimal GET
@@ -227,10 +249,20 @@ void printRawHeaders(const String &url) {
 
   // Read status line and headers
   unsigned long start = millis();
+  String foundLocation = "";
+  bool saw200 = false;
+  bool firstLine = true;
   while (secure.connected() && (millis() - start) < 5000) {
     while (secure.available()) {
       String line = secure.readStringUntil('\n');
       line.trim();
+      if (firstLine) {
+        // capture status line like "HTTP/1.1 200 OK"
+        if (line.indexOf(" 200 ") >= 0) {
+          saw200 = true;
+        }
+        firstLine = false;
+      }
       if (line.length() == 0) {
         Serial.println("[RAW] -- end headers --");
         // read up to ~2KB of body for inspection
@@ -241,12 +273,26 @@ void printRawHeaders(const String &url) {
           toRead -= chunk.length();
         }
         secure.stop();
-        return;
+        if (foundLocation.length() > 0) return foundLocation;
+        if (saw200) return String("__RAW_200__");
+        return String();
       }
       Serial.println(line);
+      // detectar header Location
+      if (line.startsWith("Location:") || line.startsWith("location:")) {
+        int colon = line.indexOf(':');
+        if (colon >= 0) {
+          String locVal = line.substring(colon + 1);
+          locVal.trim();
+          foundLocation = locVal;
+        }
+      }
     }
     delay(10);
   }
   Serial.println("[RAW] timeout leyendo respuesta");
   secure.stop();
+  if (foundLocation.length() > 0) return foundLocation;
+  if (saw200) return String("__RAW_200__");
+  return String();
 }
